@@ -1,3 +1,5 @@
+
+__pycache__/
 *.pyc
 *.bz2
 *.txt
@@ -14,4 +16,5 @@ jawiki-latest-pages-articles.xml.bz2
 
 # virtual environment
 venv/
+
 
