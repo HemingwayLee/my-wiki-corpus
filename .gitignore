@@ -1,0 +1,17 @@
+*.pyc
+*.bz2
+*.txt
+*.model
+*.npy
+.DS_Store
+.venv
+
+jawiki-latest-pages-articles.xml.bz2
+
+# IDE
+.idea/
+.vscode/
+
+# virtual environment
+venv/
+
