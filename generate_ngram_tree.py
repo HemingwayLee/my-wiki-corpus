@@ -1,11 +1,19 @@
+import MeCab
 import os
 import wget
 import json
 from utils import process_wiki_data
 
-def generate_ngram_callback(title, text):
+MECAB = MeCab.Tagger("-Owakati")
+
+def generate_ngram_callback(title, text, depth=3, tokenization=True):
     print(title)
-    print(text)
+    
+    if tokenization:
+        tokens = MECAB.parse(text).split(" ")
+        print(tokens)
+    else:
+        print(text)
 
 if __name__ == '__main__':
     INPUT_FILENAME = "jawiki-latest-pages-articles.xml.bz2"
@@ -17,3 +25,4 @@ if __name__ == '__main__':
         wget.download(JA_WIKI_LATEST_URL)
 
     process_wiki_data(INPUT_FILENAME, ARTICLE_COUNT, generate_ngram_callback)
+
