@@ -8,56 +8,45 @@ from multiprocessing import cpu_count
 import wget
 import json
 
+from mywiki import MyWikiCorpus
+
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-def process_wiki_to_ngram(input_filename, output_text_filename, depth):
-
-    if os.path.isfile(output_text_filename) and os.path.isfile(output_sentences_filename):
-        logging.info('Skipping process_wiki_to_text(). Files already exist: {} {}'.format(output_text_filename,
-                                                                                          output_sentences_filename))
-        return
-
+def process_wiki_to_ngram(input_filename, output_ngram_filename, depth):
     start = time.time()
     intermediary_time = None
-    sentences_count = 0
+    count = 0
 
-    with open(output_text_filename, 'w') as out:
-        with open(output_sentences_filename, 'w') as out_sentences:
+    wiki = MyWikiCorpus(input_filename, lemmatize=False, dictionary={}, processes=cpu_count())
+    wiki.metadata = True
+    texts = wiki.get_texts()
 
-            # Open the Wiki Dump with gensim
-            wiki = WikiCorpus(input_filename, lemmatize=False, dictionary={}, processes=cpu_count())
-            wiki.metadata = True
-            texts = wiki.get_texts()
+    for i, article in enumerate(texts):
+        if i > 10:
+            break
+        
+        title = article[1]
+        text = article[0]  
+        count += len(text)
 
-            for i, article in enumerate(texts):
-                # article[1] refers to the name of the article.
-                text_list = article[0]  
-                sentences = text_list
-                sentences_count += len(sentences)
+        print(title)
+        print(text)
 
-                # Write sentences per line
-                for sentence in sentences:
-                    out_sentences.write((sentence + '\n'))
+        # This is just for the logging
+        if i % (100 - 1) == 0 and i != 0:
+            if intermediary_time is None:
+                intermediary_time = time.time()
+            else:
+                new_time = time.time()
+                intermediary_time = new_time
+            
+            logging.info(f'Saved {i+1} articles containing {count} text.')
+                
 
-                # Write each page in one line
-                text = ' '.join(sentences) + '\n'
-                out.write(text)
 
-                # This is just for the logging
-                if i % (100 - 1) == 0 and i != 0:
-                    if intermediary_time is None:
-                        intermediary_time = time.time()
-                        elapsed = intermediary_time - start
-                    else:
-                        new_time = time.time()
-                        elapsed = new_time - intermediary_time
-                        intermediary_time = new_time
-                    sentences_per_sec = int(len(sentences) / elapsed)
-                    logging.info('Saved {0} articles containing {1} sentences ({2} sentences/sec).'.format(i + 1,
-                                                                                                           sentences_count,
-                                                                                                           sentences_per_sec))
-        logging.info(
-            'Finished process_wiki_to_text(). It took {0:.2f} s to execute.'.format(round(time.time() - start, 2)))
+    # with open(output_ngram_filename, 'w') as out:
+    #     logging.info(
+    #         'Finished process_wiki_to_text(). It took {0:.2f} s to execute.'.format(round(time.time() - start, 2)))
 
 
 if __name__ == '__main__':

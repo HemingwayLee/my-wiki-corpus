@@ -18,13 +18,14 @@ def process_article(args):
     if lemmatize:
         result = utils.lemmatize(text)
     else:
-        result = tokenize(text)
+        # result = tokenize(text)
+        result = text
     return result, title, pageid
 
 
 class MyWikiCorpus(WikiCorpus):
-def __init__(self, fname, processes=None, lemmatize=utils.has_pattern(), dictionary=None, filter_namespaces=('0',)):
-    WikiCorpus.__init__(self, fname, processes, lemmatize, dictionary, filter_namespaces)
+    def __init__(self, fname, processes=None, lemmatize=utils.has_pattern(), dictionary=None, filter_namespaces=('0',)):
+        WikiCorpus.__init__(self, fname, processes, lemmatize, dictionary, filter_namespaces)
 
     def get_texts(self):
         articles, articles_all = 0, 0
@@ -43,10 +44,10 @@ def __init__(self, fname, processes=None, lemmatize=utils.has_pattern(), diction
                 yield (tokens, (pageid, title))
             else:
                 yield tokens
-    pool.terminate()
+        pool.terminate()
 
-    logger.info(
-        "finished iterating over Wikipedia corpus of %i documents with %i positions"
-        " (total %i articles, %i positions before pruning articles shorter than %i words)",
-        articles, positions, articles_all, positions_all, ARTICLE_MIN_WORDS)
-    self.length = articles  # cache corpus length
+        logger.info(
+            "finished iterating over Wikipedia corpus of %i documents with %i positions"
+            " (total %i articles, %i positions before pruning articles shorter than %i words)",
+            articles, positions, articles_all, positions_all, ARTICLE_MIN_WORDS)
+        self.length = articles  # cache corpus length
